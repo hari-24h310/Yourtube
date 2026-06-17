@@ -1,7 +1,6 @@
 import express from "express";
 import { login, updateprofile } from "../controllers/auth.js";
-import { sendOTP, verifyOTPLogin } from "../controllers/authotp.js";
-
+import { sendOTP, verifyOTPLogin } from "../controllers/authOTP.js";
 const routes = express.Router();
 
 // existing routes
