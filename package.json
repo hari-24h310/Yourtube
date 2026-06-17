@@ -1,0 +1,41 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "types": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "migrate": "node migrate.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "axios": "^1.16.1",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "express-fileupload": "^1.5.1",
+    "fs": "^0.0.1-security",
+    "google-translate-api-x": "^10.7.2",
+    "jsonwebtoken": "^9.0.2",
+    "moment-timezone": "^0.6.2",
+    "mongoose": "^8.16.0",
+    "multer": "^2.0.1",
+    "nodemailer": "^8.0.8",
+    "nodemon": "^3.1.10",
+    "razorpay": "^2.9.6",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "redis": "^4.6.7",
+    "socket.io": "^4.8.0",
+    "twilio": "^6.0.2"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^11.2.0"
+  }
+}
