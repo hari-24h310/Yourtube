@@ -53,6 +53,8 @@ app.use(
 );
 app.use(express.urlencoded({ extended: true, limit: "30mb" }));
 
+
+app.use("/auth", userroutes);
 // Static
 app.use("/uploads", express.static(path.join("uploads")));
 app.use("/video", express.static(path.join("..", "yourtube", "public", "video")));
