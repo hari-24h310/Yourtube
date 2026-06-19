@@ -145,7 +145,7 @@ export const verifyPayment = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, mock } = req.body;
 
-    if (RAZORPAY_AVAILABLE && process.env.RAZORPAY_KEY_SECRET) {
+    if (RAZORPAY_AVAILABLE && process.env.RAZORPAY_KEY_SECRET && !mock) {
       if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
         return res.status(400).json({ success: false, message: "Missing payment verification fields" });
       }
