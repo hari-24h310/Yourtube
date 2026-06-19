@@ -132,7 +132,7 @@ export const createPaymentOrder = async (req, res) => {
       plan: selectedPlan,
       userId,
     });
-  } } catch (err) {
+  }  catch (err) {
   console.error("❌ createPaymentOrder error:", err);
   res.status(500).json({
     success: false,
