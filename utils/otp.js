@@ -49,15 +49,7 @@ const hashOtp = (otp) => {
     return true;
   }
 };
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Email OTP send attempt result:", info && info.response ? info.response : "sent");
-    return true;
-  } catch (error) {
-    console.error("Error sending email OTP:", error);
-    console.log("Falling back to dummy OTP - email service may not be configured");
-    return true;
-  }
-};
+ 
 
 // Send OTP via SMS (using Twilio - mock implementation)
 export const sendSmsOtp = async (phoneNumber, otp) => {
