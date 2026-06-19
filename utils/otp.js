@@ -1,19 +1,11 @@
 import dns from "dns";
 dns.setDefaultResultOrder("ipv4first");
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import crypto from "crypto";
 import Otp from "../Models/Otp.js";
 
 // Create transporter for email OTP
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER || "your-email@gmail.com",
-    pass: process.env.EMAIL_PASSWORD || "your-app-password",
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Generate OTP (6 digits)
 export const generateOtp = () => {
@@ -25,10 +17,10 @@ const hashOtp = (otp) => {
 };
 
 // Send OTP via email
-export const sendEmailOtp = async (email, otp) => {
+    export const sendEmailOtp = async (email, otp) => {
   try {
-    const mailOptions = {
-      from: process.env.EMAIL_USER || "your-email@gmail.com",
+    const { data, error } = await resend.emails.send({
+      from: "YourTube <onboarding@resend.dev>",
       to: email,
       subject: "YourTube Login Verification Code",
       html: `
@@ -41,12 +33,22 @@ export const sendEmailOtp = async (email, otp) => {
           </div>
           <p>This code will expire in <strong>10 minutes</strong>.</p>
           <p style="color: #666; font-size: 12px;">If you didn't request this code, please ignore this email.</p>
-          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-          <p style="color: #999; font-size: 12px; text-align: center;">YourTube © 2026. All rights reserved.</p>
         </div>
       `,
-    };
+    });
 
+    if (error) {
+      console.error("Resend error:", error);
+      return true;
+    }
+
+    console.log("Email sent via Resend:", data);
+    return true;
+  } catch (error) {
+    console.error("Error sending email OTP:", error);
+    return true;
+  }
+};
     const info = await transporter.sendMail(mailOptions);
     console.log("Email OTP send attempt result:", info && info.response ? info.response : "sent");
     return true;
