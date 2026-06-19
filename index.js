@@ -27,7 +27,10 @@ import callroutes from "./routes/call.js";
 import planroutes from "./routes/plan.js";
 import startSubscriptionExpiryJob from "./jobs/subscriptionExpiryJob.js";
 
-dotenv.config({ path: "./.env" });
+dotenv.config();
+console.log("ENV CHECK:");
+console.log(process.env.EMAIL_USER);
+console.log(process.env.EMAIL_PASSWORD ? "LOADED" : "NOT LOADED");
 
 const app = express();
 

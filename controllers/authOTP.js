@@ -1,69 +1,62 @@
-import { sendEmailOTP, sendMobileOTP, isSouthIndia } from "../utils/otp.js";
 import otpService from "../utils/otpService.js";
+import { sendEmailOTP, sendMobileOTP } from "../utils/otp.js";
 
-// SEND OTP
+// ---------------- SEND OTP ----------------
 export const sendOTP = async (req, res) => {
   try {
-    const { identifier } = req.body;
+    let { identifier } = req.body;
 
     if (!identifier) {
-      return res.status(400).json({ message: "Email or phone required." });
+      return res.status(400).json({ message: "Email or phone required" });
     }
+
+    identifier = identifier.trim().toLowerCase();
 
     const isEmail = identifier.includes("@");
-
-    let region = "";
-
-    // IP detection (safe fallback)
-    try {
-      const ipRes = await fetch("https://ipapi.co/json/");
-      const ipData = await ipRes.json();
-      region = ipData.region || "";
-    } catch (err) {
-      console.log("IP detection failed:", err.message);
-    }
 
     // rate limit check
     const allowed = await otpService.canSendOTP(identifier);
     if (!allowed) {
-      return res.status(429).json({
-        message: "Rate limit exceeded. Try again later.",
-      });
+      return res.status(429).json({ message: "Rate limit exceeded" });
     }
 
     // generate OTP
     const otp = await otpService.generateOTP(identifier);
 
-    // EMAIL FLOW
+    // send OTP
     if (isEmail) {
       await sendEmailOTP(identifier, otp);
-      return res.json({
-        method: "email",
-        message: "OTP sent via Email",
-      });
-    }
-
-    // SMS FLOW (South India special rule)
-    if (isSouthIndia(region)) {
+      return res.json({ message: "OTP sent to email", method: "email" });
+    } else {
       await sendMobileOTP(identifier, otp);
-      return res.json({
-        method: "sms",
-        message: "OTP sent via SMS (South India mode)",
-      });
+      return res.json({ message: "OTP sent to mobile", method: "sms" });
     }
-
-    // DEFAULT SMS FLOW
-    await sendMobileOTP(identifier, otp);
-    return res.json({
-      method: "sms",
-      message: "OTP sent via SMS",
-    });
-
   } catch (err) {
     console.error("sendOTP error:", err);
-    return res.status(500).json({
-      message: "Failed to send OTP",
-      error: err.message,
-    });
+    return res.status(500).json({ message: "Failed to send OTP" });
+  }
+};
+
+// ---------------- VERIFY OTP ----------------
+export const verifyOTP = async (req, res) => {
+  try {
+    let { identifier, otp } = req.body;
+
+    if (!identifier || !otp) {
+      return res.status(400).json({ message: "Missing fields" });
+    }
+
+    identifier = identifier.trim().toLowerCase();
+
+    const result = await otpService.verifyOTP(identifier, otp);
+
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    return res.json({ success: true, message: "OTP verified" });
+  } catch (err) {
+    console.error("verifyOTP error:", err);
+    return res.status(500).json({ message: "Verification failed" });
   }
 };
