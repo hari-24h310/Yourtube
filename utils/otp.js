@@ -1,3 +1,5 @@
+import dns from "dns";
+dns.setDefaultResultOrder("ipv4first");
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 import Otp from "../Models/Otp.js";
