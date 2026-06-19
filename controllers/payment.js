@@ -79,7 +79,7 @@ export const createPaymentOrder = async (req, res) => {
 
     const receiptId = `rcpt_${Date.now()}`;
 
-    if (RAZORPAY_AVAILABLE && razorpay) {
+    if (false) {
       const options = {
         amount,
         currency,
@@ -132,16 +132,15 @@ export const createPaymentOrder = async (req, res) => {
       plan: selectedPlan,
       userId,
     });
-  }  catch (err) {
-  console.error("❌ createPaymentOrder error:", err);
-  res.status(500).json({
-    success: false,
-    message: err.message,
-    stack: err.stack,
-  });
-}
+  } catch (err) {
+    console.error("❌ createPaymentOrder error:", err);
+    res.status(500).json({
+      success: false,
+      message: err.message,
+      stack: err.stack,
+    });
+  }
 };
-
 export const verifyPayment = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, mock } = req.body;
