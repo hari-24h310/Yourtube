@@ -6,7 +6,9 @@ import Otp from "../Models/Otp.js";
 
 // Create transporter for email OTP
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER || "your-email@gmail.com",
     pass: process.env.EMAIL_PASSWORD || "your-app-password",
