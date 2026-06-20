@@ -138,7 +138,7 @@ export default function Comment({ comment, currentUserId, onDelete, onEdit }: Co
               value={editBody}
               onChange={(e) => setEditBody(e.target.value)}
               rows={3}
-              style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #ccc", fontSize: "14px", resize: "vertical" }}
+              style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid #ccc", fontSize: "14px", resize: "vertical", color: "#000" }}
             />
             <div style={{ display: "flex", gap: "8px", marginTop: "6px" }}>
               <button onClick={handleEditSave} style={{ padding: "5px 14px", borderRadius: "6px", background: "#065fd4", color: "#fff", border: "none", cursor: "pointer", fontSize: "13px" }}>Save</button>

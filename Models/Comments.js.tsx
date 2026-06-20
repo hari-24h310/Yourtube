@@ -127,7 +127,7 @@ export default function Comments({ videoid, currentUser }: CommentsProps) {
                   width: "100%", padding: "10px", borderRadius: "0",
                   border: "none", borderBottom: "2px solid #ccc",
                   fontSize: "14px", resize: "none", outline: "none",
-                  background: "transparent", lineHeight: 1.5
+                  background: "transparent", lineHeight: 1.5, color: "#000"
                 }}
                 onFocus={(e) => { e.target.style.borderBottomColor = "#065fd4"; }}
                 onBlur={(e) => { e.target.style.borderBottomColor = "#ccc"; }}
@@ -148,7 +148,7 @@ export default function Comments({ videoid, currentUser }: CommentsProps) {
             <select
               value={userLanguage}
               onChange={(e) => setUserLanguage(e.target.value)}
-              style={{ fontSize: "12px", padding: "6px 10px", borderRadius: "20px", border: "1px solid #ccc" }}
+              style={{ fontSize: "12px", padding: "6px 10px", borderRadius: "20px", border: "1px solid #ccc", color: "#000" }}
             >
               {LANGUAGES.map((l) => (
                 <option key={l.code} value={l.code}>{l.label}</option>
@@ -156,7 +156,7 @@ export default function Comments({ videoid, currentUser }: CommentsProps) {
             </select>
             <button
               onClick={() => setCommentBody("")}
-              style={{ padding: "6px 14px", borderRadius: "20px", border: "none", background: "none", cursor: "pointer", fontSize: "13px" }}
+              style={{ padding: "6px 14px", borderRadius: "20px", border: "none", background: "none", cursor: "pointer", fontSize: "13px", color: "#000" }}
             >
               Cancel
             </button>

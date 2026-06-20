@@ -53,10 +53,18 @@ export const requestOtp = async (req, res) => {
     // If both or neither provided, use region preference (already set above)
 
     // Send OTP
-    if (actualMethod === "email") {
-      await sendEmailOtp(email, otp);
-    } else {
-      await sendSmsOtp(phoneNumber, otp);
+    try {
+      if (actualMethod === "email") {
+        await sendEmailOtp(email, otp);
+      } else {
+        await sendSmsOtp(phoneNumber, otp);
+      }
+    } catch (sendError) {
+      console.error(`Error sending ${actualMethod} OTP:`, sendError);
+      return res.status(500).json({ 
+        message: `Failed to send ${actualMethod} OTP. Please try again later.`,
+        error: process.env.NODE_ENV === "development" ? sendError.message : undefined
+      });
     }
 
     // Store OTP for verification (DB-backed)

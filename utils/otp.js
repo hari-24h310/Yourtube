@@ -16,6 +16,12 @@ const hashOtp = (otp) => {
 
 export const sendEmailOtp = async (email, otp) => {
   try {
+    // Check if Resend API key is configured
+    if (!process.env.RESEND_API_KEY) {
+      console.error("RESEND_API_KEY is not configured in .env");
+      throw new Error("Email service is not configured. Please set RESEND_API_KEY in .env");
+    }
+
     const { data, error } = await getResend().emails.send({
       from: "YourTube <onboarding@resend.dev>",
       to: email,
@@ -33,24 +39,52 @@ export const sendEmailOtp = async (email, otp) => {
         </div>
       `,
     });
+
     if (error) {
-      console.error("Resend error:", error);
-      return true;
+      console.error("Resend API error:", error);
+      throw new Error(`Failed to send email: ${error.message || error}`);
     }
+
     console.log("Email sent via Resend:", data);
     return true;
   } catch (error) {
-    console.error("Error sending email OTP:", error);
-    return true;
+    console.error("Error sending email OTP:", error.message || error);
+    throw error; // Re-throw so caller knows it failed
   }
 };
 
 export const sendSmsOtp = async (phoneNumber, otp) => {
   try {
-    console.log(`SMS OTP would be sent to ${phoneNumber}: ${otp} (Mock implementation)`);
+    // Check if Twilio is configured
+    if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_PHONE_NUMBER) {
+      console.warn("Twilio SMS is not configured. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER in .env");
+      if (process.env.NODE_ENV === "production") {
+        throw new Error("Twilio SMS service is not configured for production");
+      }
+      // In development, mock the SMS send
+      console.log(`[DEV MODE] SMS OTP would be sent to ${phoneNumber}: ${otp}`);
+      return true;
+    }
+
+    // Import Twilio client
+    const twilio = (await import("twilio")).default;
+    const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+    // Send SMS
+    const message = await client.messages.create({
+      body: `Your YourTube verification code is: ${otp}. Valid for 10 minutes. Do not share this code.`,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: phoneNumber,
+    });
+
+    console.log("SMS sent successfully:", message.sid);
     return true;
   } catch (error) {
     console.error("Error sending SMS OTP:", error);
+    if (process.env.NODE_ENV === "production") {
+      throw error; // Fail loudly in production
+    }
+    // In development, still return true to allow testing
     return true;
   }
 };

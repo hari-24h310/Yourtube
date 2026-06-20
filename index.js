@@ -42,7 +42,7 @@ app.use(cors({
     "http://localhost:3002",
     "http://192.168.1.4:3001",
     "http://192.168.1.4:3002",
-    "https://your-frontend.vercel.app",  // ✅ உங்க Vercel URL போடுங்க
+    "https://yourtube-frontend-k5pkr4ggw-tech-o-tech.vercel.app",
   ],
   credentials: true,
 }));
@@ -117,7 +117,7 @@ const io = new IOServer(httpServer, {
       "http://localhost:3000",
       "http://localhost:3001",
       "http://localhost:3002",
-      "https://your-frontend.vercel.app",  
+      "https://yourtube-frontend-k5pkr4ggw-tech-o-tech.vercel.app",
     ],
     methods: ["GET", "POST"],
     credentials: true,

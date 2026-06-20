@@ -24,6 +24,7 @@ export const sendInvoiceEmail = async ({
 }) => {
   try {
     if (!transporter) {
+      console.error("SMTP is not configured. Set EMAIL_USER and EMAIL_PASSWORD in server/.env");
       throw new Error("SMTP is not configured. Set EMAIL_USER and EMAIL_PASSWORD in server/.env");
     }
 
@@ -107,6 +108,3 @@ export const sendInvoiceEmail = async ({
     return false;
   }
 };
-
-// Send invite email for calls
-// Note: invite email helper removed to keep backend focused on core VoIP features.
