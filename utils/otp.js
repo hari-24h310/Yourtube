@@ -1,18 +1,9 @@
 import dns from "dns";
 dns.setDefaultResultOrder("ipv4first");
-import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 import crypto from "crypto";
 import Otp from "../Models/Otp.js";
-
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.SMTP_EMAIL,
-    pass: process.env.SMTP_PASSWORD,
-  },
-});
 
 export const generateOtp = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -23,47 +14,37 @@ const hashOtp = (otp) => {
 };
 
 async function sendEmailOtp(email, otp) {
-  await transporter.sendMail({
-    from: process.env.SMTP_EMAIL,
+  await sgMail.send({
     to: email,
-    subject: 'Your OTP Code',
-    text: `Your OTP is: ${otp}`
+    from: process.env.SENDGRID_FROM_EMAIL,
+    subject: "Your OTP Code",
+    text: `Your OTP is: ${otp}. Valid for 10 minutes.`,
   });
   return true;
 }
 
 export const sendSmsOtp = async (phoneNumber, otp) => {
   try {
-    // Check if Twilio is configured
     if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_PHONE_NUMBER) {
-      console.warn("Twilio SMS is not configured. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER in .env");
+      console.warn("Twilio SMS is not configured.");
       if (process.env.NODE_ENV === "production") {
         throw new Error("Twilio SMS service is not configured for production");
       }
-      // In development, mock the SMS send
       console.log(`[DEV MODE] SMS OTP would be sent to ${phoneNumber}: ${otp}`);
       return true;
     }
-
-    // Import Twilio client
     const twilio = (await import("twilio")).default;
     const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-
-    // Send SMS
     const message = await client.messages.create({
-      body: `Your YourTube verification code is: ${otp}. Valid for 10 minutes. Do not share this code.`,
+      body: `Your YourTube verification code is: ${otp}. Valid for 10 minutes.`,
       from: process.env.TWILIO_PHONE_NUMBER,
       to: phoneNumber,
     });
-
     console.log("SMS sent successfully:", message.sid);
     return true;
   } catch (error) {
     console.error("Error sending SMS OTP:", error);
-    if (process.env.NODE_ENV === "production") {
-      throw error; // Fail loudly in production
-    }
-    // In development, still return true to allow testing
+    if (process.env.NODE_ENV === "production") throw error;
     return true;
   }
 };
@@ -123,6 +104,7 @@ export const getStoredOtp = async (identifier) => {
 
 export const sendEmailOTP = sendEmailOtp;
 export const sendMobileOTP = sendSmsOtp;
+export { sendEmailOtp };
 
 export const verifyOTP = async (identifier, otp) => {
   const result = await verifyOtp(identifier, otp);
@@ -133,4 +115,3 @@ export const isSouthIndia = (region) => {
   const southIndiaStates = ["Tamil Nadu", "Kerala", "Karnataka", "Andhra Pradesh", "Telangana", "Puducherry"];
   return southIndiaStates.includes(region);
 };
-export { sendEmailOtp };
