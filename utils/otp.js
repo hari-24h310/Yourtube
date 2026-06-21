@@ -4,6 +4,7 @@ import sgMail from "@sendgrid/mail";
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 import crypto from "crypto";
 import Otp from "../Models/Otp.js";
+import twilio from "twilio";
 
 export const generateOtp = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -23,31 +24,23 @@ async function sendEmailOtp(email, otp) {
   return true;
 }
 
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
 export const sendSmsOtp = async (phoneNumber, otp) => {
   try {
-    if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_PHONE_NUMBER) {
-      console.warn("Twilio SMS is not configured.");
-      if (process.env.NODE_ENV === "production") {
-        throw new Error("Twilio SMS service is not configured for production");
-      }
-      console.log(`[DEV MODE] SMS OTP would be sent to ${phoneNumber}: ${otp}`);
-      return true;
-    }
-    const twilio = (await import("twilio")).default;
-    const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-    const message = await client.messages.create({
+    await twilioClient.messages.create({
       body: `Your YourTube verification code is: ${otp}. Valid for 10 minutes.`,
       from: process.env.TWILIO_PHONE_NUMBER,
       to: phoneNumber,
     });
-    console.log("SMS sent successfully:", message.sid);
+    console.log("SMS OTP sent successfully to:", phoneNumber);
     return true;
   } catch (error) {
     console.error("Error sending SMS OTP:", error);
-    if (process.env.NODE_ENV === "production") throw error;
-    return true;
+    return false;
   }
 };
+
 
 export const storeOtp = async (identifier, otp, method, ip) => {
   const now = new Date();
