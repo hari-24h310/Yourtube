@@ -131,3 +131,4 @@ export const isSouthIndia = (region) => {
   const southIndiaStates = ["Tamil Nadu", "Kerala", "Karnataka", "Andhra Pradesh", "Telangana", "Puducherry"];
   return southIndiaStates.includes(region);
 };
+export { sendEmailOtp };
