@@ -1,10 +1,16 @@
 import dns from "dns";
 dns.setDefaultResultOrder("ipv4first");
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import crypto from "crypto";
 import Otp from "../Models/Otp.js";
 
-const getResend = () => new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.SMTP_EMAIL,
+    pass: process.env.SMTP_PASSWORD,
+  },
+});
 
 export const generateOtp = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -14,44 +20,15 @@ const hashOtp = (otp) => {
   return crypto.createHash("sha256").update(otp).digest("hex");
 };
 
-export const sendEmailOtp = async (email, otp) => {
-  try {
-    // Check if Resend API key is configured
-    if (!process.env.RESEND_API_KEY) {
-      console.error("RESEND_API_KEY is not configured in .env");
-      throw new Error("Email service is not configured. Please set RESEND_API_KEY in .env");
-    }
-
-    const { data, error } = await getResend().emails.send({
-      from: "YourTube <onboarding@resend.dev>",
-      to: email,
-      subject: "YourTube Login Verification Code",
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #ff0000; text-align: center;">🎬 YourTube</h2>
-          <p>Hi there!</p>
-          <p>Your login verification code is:</p>
-          <div style="background-color: #f0f0f0; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
-            <h1 style="color: #ff0000; letter-spacing: 5px; margin: 0;">${otp}</h1>
-          </div>
-          <p>This code will expire in <strong>10 minutes</strong>.</p>
-          <p style="color: #666; font-size: 12px;">If you didn't request this code, please ignore this email.</p>
-        </div>
-      `,
-    });
-
-    if (error) {
-      console.error("Resend API error:", error);
-      throw new Error(`Failed to send email: ${error.message || error}`);
-    }
-
-    console.log("Email sent via Resend:", data);
-    return true;
-  } catch (error) {
-    console.error("Error sending email OTP:", error.message || error);
-    throw error; // Re-throw so caller knows it failed
-  }
-};
+async function sendEmailOtp(email, otp) {
+  await transporter.sendMail({
+    from: process.env.SMTP_EMAIL,
+    to: email,
+    subject: 'Your OTP Code',
+    text: `Your OTP is: ${otp}`
+  });
+  return true;
+}
 
 export const sendSmsOtp = async (phoneNumber, otp) => {
   try {
