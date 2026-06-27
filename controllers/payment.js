@@ -50,6 +50,7 @@ const sendPaymentSuccessEmail = async ({ userId, order, planType, amount, paymen
 
     const amountInRupees = Number(amount || 0) / 100;
 
+    const planName = getPlanDisplayName(normalizedPlan);
     console.log(`Attempting to send invoice email to: ${user.email} for plan: ${planName} with amount: ${amountInRupees.toFixed(2)}`);
     return await sendInvoiceEmail({
       email: user.email,
