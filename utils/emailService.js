@@ -85,7 +85,7 @@ export const sendInvoiceEmail = async ({
     `;
  
     const result = await resend.emails.send({
-      from: "hariharan936107@gmail.com",
+      from: "onboarding@resend.dev",
       to: email,
       subject: `YourTube ${planName} Plan - Payment Confirmation`,
       html: invoiceHtml,
