@@ -1,6 +1,6 @@
-import { Resend } from "resend";
+import sgMail from "@sendgrid/mail";
  
-const resend = new Resend(process.env.RESEND_API_KEY);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
  
 // Send invoice email
 export const sendInvoiceEmail = async ({
@@ -13,9 +13,9 @@ export const sendInvoiceEmail = async ({
   planDetails = {},
 }) => {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      console.error("RESEND_API_KEY is not configured. Set RESEND_API_KEY in environment variables");
-      throw new Error("RESEND_API_KEY is not configured. Set RESEND_API_KEY in environment variables");
+    if (!process.env.SENDGRID_API_KEY) {
+      console.error("SENDGRID_API_KEY is not configured");
+      throw new Error("SENDGRID_API_KEY is not configured. Set it in environment variables");
     }
  
     const invoiceHtml = `
@@ -84,17 +84,14 @@ export const sendInvoiceEmail = async ({
       </div>
     `;
  
-    const result = await resend.emails.send({
-      from: "onboarding@resend.dev",
+    const msg = {
       to: email,
+      from: "24h310@amjaincollege.edu.in",
       subject: `YourTube ${planName} Plan - Payment Confirmation`,
       html: invoiceHtml,
-    });
+    };
  
-    if (result.error) {
-      console.error("Email sending error:", result.error);
-      return false;
-    }
+    await sgMail.send(msg);
  
     console.log("Invoice email sent to:", email);
     return true;
