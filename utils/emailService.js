@@ -86,7 +86,7 @@ export const sendInvoiceEmail = async ({
  
     const msg = {
       to: email,
-      from: "24h310@amjaincollege.edu.in",
+      from: "hariharan936197@gmail.com",
       subject: `YourTube ${planName} Plan - Payment Confirmation`,
       html: invoiceHtml,
     };
