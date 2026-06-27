@@ -1,17 +1,7 @@
-import nodemailer from "nodemailer";
-
-const hasSmtpConfig = Boolean(process.env.EMAIL_USER && process.env.EMAIL_PASSWORD);
-
-const transporter = hasSmtpConfig
-  ? nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    })
-  : null;
-
+import { Resend } from "resend";
+ 
+const resend = new Resend(process.env.RESEND_API_KEY);
+ 
 // Send invoice email
 export const sendInvoiceEmail = async ({
   email,
@@ -23,11 +13,11 @@ export const sendInvoiceEmail = async ({
   planDetails = {},
 }) => {
   try {
-    if (!transporter) {
-      console.error("SMTP is not configured. Set EMAIL_USER and EMAIL_PASSWORD in server/.env");
-      throw new Error("SMTP is not configured. Set EMAIL_USER and EMAIL_PASSWORD in server/.env");
+    if (!process.env.RESEND_API_KEY) {
+      console.error("RESEND_API_KEY is not configured. Set RESEND_API_KEY in environment variables");
+      throw new Error("RESEND_API_KEY is not configured. Set RESEND_API_KEY in environment variables");
     }
-
+ 
     const invoiceHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #333;">Payment Confirmation & Invoice</h2>
@@ -38,7 +28,7 @@ export const sendInvoiceEmail = async ({
             Your plan has been upgraded successfully.
           </p>
         </div>
-
+ 
         <div style="border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px;">
           <h3 style="color: #333; margin-top: 0;">Invoice Details</h3>
           
@@ -65,7 +55,7 @@ export const sendInvoiceEmail = async ({
             </tr>
           </table>
         </div>
-
+ 
         <div style="background-color: #e8f4f8; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <p style="color: #0066cc; font-weight: bold;">Plan details:</p>
           <ul style="color: #666; margin: 10px 0; padding-left: 20px;">
@@ -74,7 +64,7 @@ export const sendInvoiceEmail = async ({
             <li>Validity: ${planDetails.validity || "30 days"}</li>
           </ul>
         </div>
-
+ 
         <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <p style="color: #0066cc; font-weight: bold;">Benefits of your new plan:</p>
           <ul style="color: #666; margin: 10px 0; padding-left: 20px;">
@@ -84,7 +74,7 @@ export const sendInvoiceEmail = async ({
             <li>Ad-free experience</li>
           </ul>
         </div>
-
+ 
         <div style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 20px;">
           <p style="color: #666; font-size: 12px;">
             This is an automated email. Please do not reply to this email.
@@ -93,14 +83,19 @@ export const sendInvoiceEmail = async ({
         </div>
       </div>
     `;
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+ 
+    const result = await resend.emails.send({
+      from: "noreply@yourtube.com",
       to: email,
       subject: `YourTube ${planName} Plan - Payment Confirmation`,
       html: invoiceHtml,
     });
-
+ 
+    if (result.error) {
+      console.error("Email sending error:", result.error);
+      return false;
+    }
+ 
     console.log("Invoice email sent to:", email);
     return true;
   } catch (error) {
@@ -108,3 +103,4 @@ export const sendInvoiceEmail = async ({
     return false;
   }
 };
+ 
